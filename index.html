@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EEF1EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121718" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="دفتر المهام">
+<title>دفتر المهام</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%93%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;600;700&family=Readex+Pro:wght@300..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1EE; --surface:#FBFCFB; --ink:#1D2A2C; --muted:#5F6E70; --line:#D3DAD5; --sel:#E2E8E4;
+  --accent:#2D43B8; --accent-ink:#FFFFFF; --accent-soft:#DEE3F8;
+  --done:#2C7A57; --done-soft:#DCEEE5;
+  --warn:#8F5508; --warn-bg:#F6EAD3; --danger:#B3261E;
+  --ui:"Readex Pro","Segoe UI",Tahoma,system-ui,sans-serif;
+  --serif:"Noto Naskh Arabic","Amiri","Traditional Arabic","Times New Roman",serif;
+  --bar-h:56px; --nav-h:64px;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121718; --surface:#192022; --ink:#E3E9E7; --muted:#93A09F; --line:#2A3436; --sel:#212A2C;
+    --accent:#93A2FF; --accent-ink:#10142E; --accent-soft:#262D52;
+    --done:#5DBE93; --done-soft:#1D3329;
+    --warn:#E8B15E; --warn-bg:#2E2414; --danger:#F2867E;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121718; --surface:#192022; --ink:#E3E9E7; --muted:#93A09F; --line:#2A3436; --sel:#212A2C;
+  --accent:#93A2FF; --accent-ink:#10142E; --accent-soft:#262D52;
+  --done:#5DBE93; --done-soft:#1D3329;
+  --warn:#E8B15E; --warn-bg:#2E2414; --danger:#F2867E;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{background:var(--bg);-webkit-text-size-adjust:100%;
+  scroll-padding-top:calc(env(safe-area-inset-top,0px) + var(--bar-h) + 8px);
+  scroll-padding-bottom:calc(var(--nav-h) + 24px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:400 16px/1.65 var(--ui);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:20;background:var(--bg)}
+[hidden]{display:none !important}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+svg{display:block}
+
+/* ---------- app bar ---------- */
+.appbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;height:var(--bar-h);display:flex;align-items:center;gap:2px;padding:0 6px;background:var(--bg);border-bottom:1px solid var(--line)}
+.brand{margin:0;padding-inline:10px;font-family:var(--serif);font-weight:700;font-size:21px;line-height:1.3}
+.spacer{flex:1}
+.bar-title{flex:1;min-width:0;text-align:center;font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-btn,.icon-btn{position:relative;height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:12px;background:transparent;color:var(--ink);font:inherit;font-size:15px;font-weight:500;cursor:pointer}
+.bar-btn{padding:0 12px}
+.icon-btn{width:44px}
+.bar-btn:hover,.icon-btn:hover,.bar-btn:active,.icon-btn:active{background:var(--sel)}
+.bar-btn svg,.icon-btn svg{width:22px;height:22px}
+.bar-btn.primary{height:38px;padding:0 18px;border-radius:10px;background:var(--accent);color:var(--accent-ink)}
+.icon-btn.danger:hover,.icon-btn.danger:active{color:var(--danger)}
+.dot{position:absolute;top:8px;inset-inline-start:24px;width:10px;height:10px;border-radius:50%;background:var(--warn);border:2px solid var(--bg)}
+
+/* ---------- buttons & inputs ---------- */
+.btn{min-height:44px;font:inherit;font-size:15px;font-weight:500;line-height:1.4;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 16px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{border-color:var(--muted)}
+.btn svg{width:20px;height:20px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.quiet{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.quiet:hover{background:var(--sel);color:var(--ink)}
+.btn.danger:hover{color:var(--danger)}
+.btn.small{min-height:32px;font-size:13px;padding:2px 10px}
+.btn.block{width:100%;min-height:50px;font-size:16px}
+.input,.textarea{font:inherit;font-size:16px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
+.input::placeholder,.textarea::placeholder{color:var(--muted);opacity:.85}
+.textarea{resize:vertical;min-height:84px;line-height:1.7}
+.field{display:grid;gap:6px}
+.field label{font-size:14px;font-weight:500;color:var(--muted)}
+.error{margin:0;font-size:14px;color:var(--danger)}
+
+.banner{margin:12px 16px 0;padding:12px 16px;border-radius:12px;background:var(--warn-bg);font-size:15px}
+
+/* ---------- list ---------- */
+.list-pane{padding-bottom:calc(var(--nav-h) + 100px)}
+.list-tools{padding:12px 16px 4px}
+.task-list{list-style:none;margin:0;padding:0}
+.task-row{display:flex;align-items:stretch;border-bottom:1px solid var(--line);border-inline-start:3px solid transparent}
+.task-row.selected{background:var(--sel);border-inline-start-color:var(--accent)}
+.check-hit{flex:none;display:flex;align-items:flex-start;padding-block:15px;padding-inline:13px 8px;cursor:pointer}
+.row-main{flex:1;min-width:0;padding-block:14px;padding-inline:0 16px;font:inherit;color:inherit;background:none;border:0;text-align:start;cursor:pointer}
+.row-main:active{background:var(--sel)}
+.row-title{display:block;font-family:var(--serif);font-weight:600;font-size:17px;line-height:1.55;overflow-wrap:anywhere}
+.task-row.done .row-title{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+.row-meta{display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:3px;font-size:13px;color:var(--muted)}
+.due.late{color:var(--danger);font-weight:500}
+.due.soon{color:var(--warn);font-weight:500}
+.empty{padding:48px 28px;text-align:center;color:var(--muted)}
+.empty strong{display:block;margin-bottom:6px;font-family:var(--serif);font-size:20px;font-weight:600;color:var(--ink)}
+
+/* checkbox */
+.check{appearance:none;-webkit-appearance:none;flex:none;width:24px;height:24px;margin:0;border:1.5px solid var(--muted);border-radius:7px;background:var(--surface);cursor:pointer;display:grid;place-content:center;transition:background-color .15s,border-color .15s}
+.check::after{content:"";width:6px;height:11px;margin-top:-2px;border:solid var(--surface);border-width:0 2.2px 2.2px 0;transform:rotate(45deg) scale(0);transition:transform .15s}
+.check:checked{background:var(--done);border-color:var(--done)}
+.check:checked::after{transform:rotate(45deg) scale(1)}
+
+/* new-task button: floating on phones */
+.fab{position:fixed;z-index:12;inset-inline-end:16px;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom,0px));height:54px;padding:0 20px 0 22px;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:18px;background:var(--accent);color:var(--accent-ink);font:inherit;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 8px 20px rgb(20 32 90 / .28)}
+.fab svg{width:22px;height:22px}
+
+/* filters: bottom navigation on phones */
+.nav{position:fixed;z-index:12;inset-inline:0;bottom:0;display:flex;height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--surface);border-top:1px solid var(--line)}
+.nav button{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:none;color:var(--muted);font:inherit;font-size:12.5px;cursor:pointer}
+.nav .ico{width:58px;height:30px;border-radius:15px;display:grid;place-items:center;transition:background-color .15s}
+.nav svg{width:22px;height:22px}
+.nav button[aria-pressed="true"]{color:var(--ink);font-weight:600}
+.nav button[aria-pressed="true"] .ico{background:var(--accent-soft);color:var(--accent)}
+.nav .count{position:absolute;top:4px;inset-inline-start:calc(50% + 6px);min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--sel);color:var(--muted);font-size:11px;font-weight:600;line-height:19px;text-align:center}
+.nav button.has-late .count{background:var(--danger);color:var(--surface)}
+
+/* ---------- detail ---------- */
+.detail-pane{padding:18px 18px calc(96px + env(safe-area-inset-bottom,0px))}
+.detail-inner{max-width:680px}
+.detail-head{display:none}
+.task-title{margin:0 0 14px;font-family:var(--serif);font-weight:700;font-size:26px;line-height:1.45;overflow-wrap:anywhere}
+.task-title:focus{outline:none}
+.done-toggle{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:6px 16px 6px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:15px;font-weight:500;cursor:pointer}
+.done-toggle.is-done{background:var(--done-soft);border-color:transparent;color:var(--done)}
+.facts{display:flex;flex-wrap:wrap;gap:4px 22px;margin-top:14px;font-size:14.5px;color:var(--muted)}
+.facts strong{color:var(--ink);font-weight:500}
+.desc{margin:18px 0 0;max-width:62ch;font-size:16px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}
+.section-h{margin:34px 0 16px;font-size:15px;font-weight:600}
+.section-h span{margin-inline-start:8px;color:var(--muted);font-weight:400}
+
+.timeline{list-style:none;margin:0;padding:0;position:relative}
+.timeline::before{content:"";position:absolute;inset-inline-start:7px;top:10px;bottom:14px;width:2px;border-radius:2px;background:var(--line)}
+.ev{position:relative;padding-inline-start:32px;padding-bottom:22px}
+.ev::before{content:"";position:absolute;inset-inline-start:2px;top:7px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--muted)}
+.ev.comment::before{background:var(--accent);border-color:var(--accent)}
+.ev.done-ev::before{background:var(--done);border-color:var(--done)}
+.ev-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px}
+.ev-author{font-weight:600}
+.ev-time{font-size:13px;color:var(--muted)}
+.ev-text{margin:3px 0 0;max-width:62ch;white-space:pre-wrap;overflow-wrap:anywhere}
+.ev.system .ev-text{margin:0;font-size:14.5px;color:var(--muted)}
+.ev.done-ev .ev-text{color:var(--done);font-weight:500}
+.ev-del{margin-inline-start:auto}
+
+.composer{display:grid;gap:12px;margin-top:4px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.composer .input,.composer .textarea{background:var(--bg)}
+.composer-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.composer-foot .btn.primary{flex:1}
+.hint{display:none;font-size:12.5px;color:var(--muted)}
+
+/* "add update" bar, phones only */
+.detail-cta{position:fixed;z-index:12;inset-inline:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line);transition:transform .2s ease-out}
+.detail-cta.away{transform:translateY(115%)}
+
+/* task form */
+.task-form{display:grid;gap:18px;max-width:560px}
+.form-h{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.date-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.input.date{width:auto;min-width:190px}
+.form-foot{display:grid;gap:8px}
+.placeholder{min-height:50vh;display:grid;place-content:center;text-align:center;color:var(--muted)}
+.placeholder p{max-width:34ch;margin:0}
+
+/* ---------- sheet, toast ---------- */
+.sheet-layer{position:fixed;inset:0;z-index:40}
+.scrim{position:absolute;inset:0;background:rgb(0 0 0 / .42);opacity:0;transition:opacity .2s}
+.sheet{position:absolute;inset-inline:0;bottom:0;max-height:88vh;max-height:88dvh;overflow-y:auto;display:grid;gap:12px;padding:8px 20px calc(20px + env(safe-area-inset-bottom,0px));border-radius:22px 22px 0 0;background:var(--surface);transform:translateY(100%);transition:transform .22s ease-out}
+.sheet-layer.open .scrim{opacity:1}
+.sheet-layer.open .sheet{transform:none}
+.sheet-grip{width:40px;height:4px;margin:4px auto 6px;border-radius:2px;background:var(--line)}
+.sheet-h{margin:0;font-family:var(--serif);font-size:22px;font-weight:700}
+.sheet p{margin:0;color:var(--muted)}
+.sheet .sheet-status{color:var(--ink);font-weight:500}
+.sheet .sheet-status.warn{color:var(--warn)}
+.sheet-actions{display:grid;gap:8px;margin-top:6px}
+.sheet .textarea{min-height:180px;direction:ltr;text-align:left;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace}
+
+.toast{position:fixed;z-index:30;inset-inline:0;margin-inline:auto;width:max-content;max-width:calc(100% - 32px);bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:18px;padding:12px 18px;border-radius:12px;background:var(--ink);color:var(--bg);font-size:15px;box-shadow:0 6px 20px rgb(0 0 0 / .2)}
+.toast button{font:inherit;font-weight:600;color:inherit;background:none;border:0;padding:4px 0;text-decoration:underline;cursor:pointer}
+
+/* ---------- phones: one screen at a time ---------- */
+@media (max-width:760px){
+  .app[data-view="list"] .detail-pane{display:none}
+  .app[data-view="detail"] .list-pane{display:none}
+  body[data-view="list"] .toast{bottom:calc(var(--nav-h) + 86px + env(safe-area-inset-bottom,0px))}
+  body[data-view="detail"] .toast{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+}
+
+/* ---------- larger screens: two panes ---------- */
+@media (min-width:761px){
+  html{height:100%;scroll-padding:0}
+  body{height:100%}
+  .shell{height:100%;display:flex;flex-direction:column;max-width:1200px;margin:0 auto}
+  .appbar{position:relative;top:auto;flex:none;height:64px;padding:0 14px}
+  .app{flex:1;min-height:0;display:grid;grid-template-columns:minmax(300px,380px) 1fr}
+  .list-pane{display:flex;flex-direction:column;min-height:0;padding-bottom:0;border-inline-end:1px solid var(--line)}
+  .list-tools{display:grid;gap:10px;padding:16px 20px 12px}
+  .fab{position:static;height:44px;border-radius:10px;box-shadow:none;justify-content:center;font-size:15px}
+  .nav{position:static;height:auto;padding:3px;border:0;border-radius:10px;background:var(--sel)}
+  .nav button{flex-direction:row;gap:5px;padding:7px 4px;border-radius:8px;font-size:13.5px}
+  .nav .ico{display:none}
+  .nav .count{position:static;min-width:0;height:auto;padding:0;background:none;font-size:13px;font-weight:400;line-height:inherit;opacity:.8}
+  .nav button.has-late .count{background:none;color:var(--danger);opacity:1;font-weight:600}
+  .nav button[aria-pressed="true"]{background:var(--surface);box-shadow:0 1px 2px rgb(0 0 0 / .08)}
+  .task-list{flex:1;overflow-y:auto;padding-bottom:24px}
+  .check-hit{padding-inline:17px 6px}
+  .detail-pane{overflow-y:auto;min-height:0;padding:26px 40px 56px}
+  .detail-head{display:flex;justify-content:flex-end;gap:4px;margin-bottom:10px}
+  .task-title{font-size:31px}
+  .detail-cta{display:none}
+  .hint{display:inline;margin-inline-start:auto}
+  .composer-foot .btn.primary{flex:none}
+  .form-h{position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:normal;margin:0;font-family:var(--serif);font-size:27px;font-weight:700}
+  .form-foot{display:flex}
+  .form-foot .btn.block{width:auto;min-height:44px;font-size:15px}
+  .placeholder{min-height:70%}
+  .sheet{inset:auto;top:50%;left:50%;width:min(440px,calc(100% - 32px));padding:22px;border-radius:18px;transform:translate(-50%,-46%);opacity:0;transition:transform .18s,opacity .18s}
+  .sheet-layer.open .sheet{transform:translate(-50%,-50%);opacity:1}
+  .sheet-grip{display:none}
+  .banner{margin-inline:24px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body data-view="list">
+<div class="shell">
+  <header id="appbar" class="appbar"></header>
+  <div id="banner" class="banner" role="alert" hidden></div>
+
+  <main id="app" class="app" data-view="list">
+    <section class="list-pane" aria-label="المهام">
+      <div class="list-tools">
+        <button id="fab" class="fab" type="button"><span data-icon="plus"></span>مهمة جديدة</button>
+        <label class="sr-only" for="search">بحث في المهام</label>
+        <input id="search" class="input" type="search" placeholder="دوّر في المهام والتعليقات" autocomplete="off" enterkeyhint="search">
+        <nav id="nav" class="nav" aria-label="تصفية المهام">
+          <button type="button" data-filter="all" aria-pressed="true"><span class="ico" data-icon="all"></span><span>الكل</span><span class="count"></span></button>
+          <button type="button" data-filter="open" aria-pressed="false"><span class="ico" data-icon="open"></span><span>مفتوحة</span><span class="count"></span></button>
+          <button type="button" data-filter="late" aria-pressed="false"><span class="ico" data-icon="late"></span><span>متأخرة</span><span class="count"></span></button>
+          <button type="button" data-filter="done" aria-pressed="false"><span class="ico" data-icon="done"></span><span>خلصت</span><span class="count"></span></button>
+        </nav>
+      </div>
+      <ul id="taskList" class="task-list"></ul>
+      <div id="listEmpty" class="empty" hidden></div>
+    </section>
+    <section id="detail" class="detail-pane" aria-label="تفاصيل المهمة"></section>
+  </main>
+</div>
+
+<datalist id="people"></datalist>
+<input id="fileInput" class="sr-only" type="file" tabindex="-1" aria-hidden="true">
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const KEY = 'task-notebook:v1';
+  const BACKUP_KEY = 'task-notebook:lastBackup';
+
+  const nf = new Intl.NumberFormat('ar-EG');
+  const rtf = new Intl.RelativeTimeFormat('ar-EG', { numeric: 'auto' });
+  const dtFull = new Intl.DateTimeFormat('ar-EG', { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+  const dtShort = new Intl.DateTimeFormat('ar-EG', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+  const mq = window.matchMedia('(max-width: 760px)');
+  const isNarrow = () => mq.matches;
+
+  let storageOk = true;
+  let state = { tasks: [], lastChange: 0 };
+  const ui = {
+    selectedId: null,
+    mode: 'none',      // none | view | new | edit
+    view: 'list',      // list | detail  (phones show one at a time)
+    filter: 'all',
+    query: '',
+    formDraft: null,
+    formError: '',
+    draft: null,       // comment being typed
+    lastAuthor: ''
+  };
+  let listScrollY = 0;
+  let composerObserver = null;
+  let sheetState = null;
+  let headerWarn = null;
+
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    appbar: $('appbar'), app: $('app'), list: $('taskList'), listEmpty: $('listEmpty'), detail: $('detail'),
+    nav: $('nav'), search: $('search'), fab: $('fab'), fileInput: $('fileInput'),
+    banner: $('banner'), toast: $('toast'), people: $('people')
+  };
+
+  /* ---------- helpers ---------- */
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    if (props) {
+      for (const k in props) {
+        const v = props[k];
+        if (v == null || v === false) continue;
+        if (k === 'class') el.className = v;
+        else if (k === 'text') el.textContent = v;
+        else if (k === 'value') el.value = v;
+        else if (k === 'checked') el.checked = !!v;
+        else if (k.slice(0, 2) === 'on' && typeof v === 'function') el.addEventListener(k.slice(2), v);
+        else el.setAttribute(k, v === true ? '' : String(v));
+      }
+    }
+    for (const c of kids.flat()) { if (c != null && c !== false) el.append(c); }
+    return el;
+  }
+  const ICONS = {
+    back: ['M9 5l7 7-7 7'],
+    edit: ['M4 20h4L18.5 9.5a2.12 2.12 0 0 0-3-3L5 17v3z', 'M13.5 7.5l3 3'],
+    trash: ['M4 7h16', 'M10 11v6', 'M14 11v6', 'M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12', 'M9 7V4h6v3'],
+    plus: ['M12 5v14', 'M5 12h14'],
+    backup: ['M12 4v11', 'M7.5 10.5L12 15l4.5-4.5', 'M5 20h14'],
+    restore: ['M12 15V4', 'M7.5 8.5L12 4l4.5 4.5', 'M5 20h14'],
+    share: ['M12 14V4', 'M8 8l4-4 4 4', 'M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7'],
+    all: ['M9 6h11', 'M9 12h11', 'M9 18h11', 'M4.5 6h.01', 'M4.5 12h.01', 'M4.5 18h.01'],
+    open: ['M12 4a8 8 0 1 0 0 16a8 8 0 1 0 0-16z'],
+    late: ['M12 4a8 8 0 1 0 0 16a8 8 0 1 0 0-16z', 'M12 8v4.5l3 2'],
+    done: ['M12 4a8 8 0 1 0 0 16a8 8 0 1 0 0-16z', 'M8.5 12.5l2.5 2.5 4.5-5']
+  };
+  function icon(name) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.8');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    svg.setAttribute('aria-hidden', 'true');
+    for (const d of ICONS[name] || []) { const p = document.createElementNS(NS, 'path'); p.setAttribute('d', d); svg.append(p); }
+    return svg;
+  }
+  const str = (v) => (typeof v === 'string' ? v : v == null ? '' : String(v));
+  const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+  const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+    : Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  const later = (fn) => requestAnimationFrame(() => requestAnimationFrame(fn));
+  const sel = (s) => (window.CSS && CSS.escape) ? CSS.escape(s) : s;
+
+  function rel(ts) {
+    const diff = (ts - Date.now()) / 1000;
+    const abs = Math.abs(diff);
+    const units = [['year', 31536000], ['month', 2592000], ['week', 604800], ['day', 86400], ['hour', 3600], ['minute', 60]];
+    for (const [u, s] of units) if (abs >= s) return rtf.format(Math.round(diff / s), u);
+    return rtf.format(0, 'second');
+  }
+  function plural(n, one, two, few, many, zero) {
+    if (n === 0) return zero;
+    if (n === 1) return one;
+    if (n === 2) return two;
+    if (n <= 10) return nf.format(n) + ' ' + few;
+    return nf.format(n) + ' ' + many;
+  }
+  const tasksLabel = (n) => plural(n, 'مهمة واحدة', 'مهمتين', 'مهام', 'مهمة', 'مفيش مهام');
+  const commentsLabel = (n) => plural(n, 'تعليق واحد', 'تعليقين', 'تعليقات', 'تعليق', 'مفيش تعليقات');
+  const daysLabel = (n) => plural(n, 'يوم', 'يومين', 'أيام', 'يوم', '');
+
+  /* due dates are stored as local calendar days: "YYYY-MM-DD" */
+  const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+  const ID_RE = /^[A-Za-z0-9-]{1,64}$/;
+  function parseDate(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+  function daysUntil(s) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.round((parseDate(s) - today) / 86400000);
+  }
+  function formatDue(s) {
+    const d = parseDate(s);
+    const opts = { day: 'numeric', month: 'long' };
+    if (d.getFullYear() !== new Date().getFullYear()) opts.year = 'numeric';
+    return new Intl.DateTimeFormat('ar-EG', opts).format(d);
+  }
+  const isLate = (t) => !t.done && !!t.dueDate && daysUntil(t.dueDate) < 0;
+  function dueInfo(t) {
+    if (!t.dueDate) return null;
+    if (t.done) return { text: 'كان آخر ميعاد ' + formatDue(t.dueDate), cls: '' };
+    const n = daysUntil(t.dueDate);
+    if (n < 0) return { text: 'متأخرة ' + daysLabel(-n), cls: 'late' };
+    if (n === 0) return { text: 'آخر ميعاد النهارده', cls: 'soon' };
+    if (n === 1) return { text: 'آخر ميعاد بكرة', cls: 'soon' };
+    return { text: 'آخر ميعاد ' + formatDue(t.dueDate), cls: '' };
+  }
+
+  /* ---------- data ---------- */
+  function normalizeComment(c) {
+    if (!c || typeof c !== 'object') return null;
+    const text = str(c.text).trim();
+    if (!text) return null;
+    return { id: str(c.id) || uid(), author: str(c.author).trim(), text, createdAt: num(c.createdAt) || Date.now() };
+  }
+  function normalizeTask(t) {
+    if (!t || typeof t !== 'object') return null;
+    const createdAt = num(t.createdAt) || Date.now();
+    const done = !!t.done;
+    return {
+      id: ID_RE.test(str(t.id)) ? str(t.id) : uid(),
+      title: str(t.title).trim() || 'بدون عنوان',
+      description: str(t.description),
+      assignee: str(t.assignee).trim(),
+      dueDate: DATE_RE.test(str(t.dueDate)) ? str(t.dueDate) : '',
+      done,
+      doneAt: done ? (num(t.doneAt) || null) : null,
+      createdAt,
+      updatedAt: num(t.updatedAt) || createdAt,
+      comments: Array.isArray(t.comments) ? t.comments.map(normalizeComment).filter(Boolean) : []
+    };
+  }
+  function loadState() {
+    let raw = null;
+    try { raw = localStorage.getItem(KEY); } catch (e) { storageOk = false; return; }
+    if (!raw) { state = { tasks: [], lastChange: 0 }; return; }
+    try {
+      const p = JSON.parse(raw);
+      const list = Array.isArray(p) ? p : (p && Array.isArray(p.tasks) ? p.tasks : []);
+      state = { tasks: list.map(normalizeTask).filter(Boolean), lastChange: num(p && p.lastChange) };
+    } catch (e) {
+      try { localStorage.setItem(KEY + ':unreadable-' + Date.now(), raw); } catch (_) {}
+      state = { tasks: [], lastChange: 0 };
+    }
+  }
+  function persist() {
+    state.lastChange = Date.now();
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ version: 1, lastChange: state.lastChange, tasks: state.tasks }));
+      storageOk = true;
+    } catch (e) { storageOk = false; }
+  }
+  function commit() { persist(); renderAll(); }
+  const getTask = (id) => state.tasks.find((t) => t.id === id) || null;
+  const blankDraft = () => ({ title: '', description: '', assignee: '', dueDate: '' });
+
+  function getLastBackup() { try { return num(localStorage.getItem(BACKUP_KEY)); } catch (e) { return 0; } }
+  function markBackup() {
+    try { localStorage.setItem(BACKUP_KEY, String(Date.now())); } catch (e) {}
+    renderHeader();
+  }
+  function backupWarn() {
+    const last = getLastBackup();
+    if (!last) return state.tasks.length > 0;
+    return state.lastChange > last && (Date.now() - last) > 3 * 86400000;
+  }
+
+  /* ---------- navigation (the phone's back button works) ---------- */
+  const routeStack = [];   // entries this page pushed onto history
+  const currentRoute = () => (location.hash || '').replace(/^#/, '');
+  function navigate(r) {
+    if (currentRoute() === r) { applyRoute(r); return; }
+    routeStack.push(r);
+    location.hash = r;
+  }
+  function replaceRoute(r) {
+    if (routeStack.length) routeStack[routeStack.length - 1] = r;
+    if (currentRoute() === r) { applyRoute(r); return; }
+    location.replace('#' + r);
+  }
+  function parentOf(r) { return r.indexOf('edit-') === 0 ? 'task-' + r.slice(5) : ''; }
+  function goBack() {
+    if (routeStack.length) { routeStack.pop(); history.back(); }
+    else replaceRoute(parentOf(currentRoute()));
+  }
+  window.addEventListener('hashchange', () => {
+    const r = currentRoute();
+    if (routeStack.length && routeStack[routeStack.length - 1] !== r) {
+      const i = routeStack.lastIndexOf(r);
+      routeStack.length = i >= 0 ? i + 1 : 0;
+    }
+    applyRoute(r);
+  });
+
+  function applyRoute(r) {
+    const prevView = ui.view;
+    const prevKey = ui.mode + ':' + ui.selectedId;
+    let id = '';
+    if (r === 'new') {
+      if (ui.mode !== 'new') { ui.formDraft = blankDraft(); ui.formError = ''; }
+      ui.mode = 'new'; ui.view = 'detail';
+    } else if (r.indexOf('edit-') === 0 && getTask(id = r.slice(5))) {
+      if (!(ui.mode === 'edit' && ui.selectedId === id)) {
+        const t = getTask(id);
+        ui.formDraft = { title: t.title, description: t.description, assignee: t.assignee, dueDate: t.dueDate || '' };
+        ui.formError = '';
+      }
+      ui.selectedId = id; ui.mode = 'edit'; ui.view = 'detail';
+    } else if (r.indexOf('task-') === 0 && getTask(id = r.slice(5))) {
+      ui.selectedId = id; ui.mode = 'view'; ui.view = 'detail';
+    } else {
+      ui.mode = 'none'; ui.view = 'list';
+    }
+    if (prevView === 'list' && ui.view === 'detail') listScrollY = window.scrollY;
+    renderAll();
+
+    const key = ui.mode + ':' + ui.selectedId;
+    if (isNarrow()) {
+      if (ui.view === 'detail' && key !== prevKey) window.scrollTo(0, 0);
+      else if (ui.view === 'list' && prevView === 'detail') window.scrollTo(0, listScrollY);
+    } else if (key !== prevKey) {
+      els.detail.scrollTop = 0;
+    }
+    later(() => {
+      if (ui.mode === 'new' && key !== prevKey) { const i = $('f-title'); if (i) i.focus(); }
+      else if (ui.mode === 'view' && key !== prevKey && isNarrow()) { const t = $('taskTitle'); if (t) t.focus({ preventScroll: true }); }
+      else if (ui.view === 'list' && prevView === 'detail' && isNarrow() && ui.selectedId) {
+        const b = els.list.querySelector('.row-main[data-id="' + sel(ui.selectedId) + '"]');
+        if (b) b.focus({ preventScroll: true });
+      }
+    });
+  }
+
+  /* ---------- actions ---------- */
+  function selectTask(id) {
+    const r = 'task-' + id;
+    if (!isNarrow() && currentRoute().indexOf('task-') === 0) replaceRoute(r);
+    else navigate(r);
+  }
+  const openNew = () => navigate('new');
+  const startEdit = (id) => navigate('edit-' + id);
+
+  function saveForm() {
+    const f = ui.formDraft || blankDraft();
+    const title = f.title.trim();
+    if (!title) {
+      ui.formError = 'اكتب عنوان للمهمة.';
+      renderDetail();
+      later(() => { const i = $('f-title'); if (i) i.focus(); });
+      return;
+    }
+    const now = Date.now();
+    const fields = { title, description: f.description.trim(), assignee: f.assignee.trim(), dueDate: f.dueDate || '' };
+    if (ui.mode === 'new') {
+      const t = Object.assign({ id: uid(), done: false, doneAt: null, createdAt: now, updatedAt: now, comments: [] }, fields);
+      state.tasks.push(t);
+      if (ui.filter === 'done' || ui.filter === 'late') ui.filter = 'all';
+      ui.query = ''; els.search.value = '';
+      persist();
+      replaceRoute('task-' + t.id);
+    } else {
+      const t = getTask(ui.selectedId);
+      if (t) Object.assign(t, fields, { updatedAt: now });
+      persist();
+      goBack();
+    }
+  }
+  const cancelForm = () => goBack();
+
+  function toggleDone(id, origin) {
+    const t = getTask(id);
+    if (!t) return;
+    t.done = !t.done;
+    t.doneAt = t.done ? Date.now() : null;
+    t.updatedAt = Date.now();
+    commit();
+    later(() => {
+      const scope = origin === 'list' ? els.list : els.detail;
+      const box = scope.querySelector('.check[data-id="' + sel(id) + '"]');
+      if (box) box.focus({ preventScroll: true });
+    });
+  }
+  function deleteTask(id) {
+    const idx = state.tasks.findIndex((t) => t.id === id);
+    if (idx < 0) return;
+    const [removed] = state.tasks.splice(idx, 1);
+    persist();
+    const r = currentRoute();
+    if (r === 'task-' + id || r === 'edit-' + id) goBack(); else renderAll();
+    toast('اتحذفت المهمة.', 'تراجع', () => {
+      state.tasks.splice(Math.min(idx, state.tasks.length), 0, removed);
+      commit();
+    });
+  }
+  function addComment(t) {
+    const d = ui.draft;
+    const text = (d.text || '').trim();
+    if (!text) { const ta = $('c-text'); if (ta) ta.focus(); return; }
+    const author = (d.author || '').trim();
+    t.comments.push({ id: uid(), author, text, createdAt: Date.now() });
+    t.updatedAt = Date.now();
+    ui.lastAuthor = author;
+    d.text = '';
+    commit();
+    later(() => {
+      const evs = els.detail.querySelectorAll('.ev.comment');
+      if (evs.length) evs[evs.length - 1].scrollIntoView({ block: 'nearest' });
+      if (!isNarrow()) { const ta = $('c-text'); if (ta) ta.focus(); }
+    });
+    toast('اتضاف التحديث.');
+  }
+  function deleteComment(t, cid) {
+    const idx = t.comments.findIndex((c) => c.id === cid);
+    if (idx < 0) return;
+    const [removed] = t.comments.splice(idx, 1);
+    t.updatedAt = Date.now();
+    commit();
+    toast('اتحذف التعليق.', 'تراجع', () => {
+      const task = getTask(t.id);
+      if (!task) return;
+      task.comments.splice(Math.min(idx, task.comments.length), 0, removed);
+      commit();
+    });
+  }
+  function jumpToComposer() {
+    const ta = $('c-text');
+    if (ta) ta.focus();
+    const c = $('composer');
+    if (c) c.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  }
+
+  /* ---------- backup ---------- */
+  const hasClaude = !!(window.claude && typeof window.claude.use === 'function');
+  const downloadsP = hasClaude ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
+  function canShareFiles() {
+    if (hasClaude || !navigator.canShare || !navigator.share) return false;
+    try { return navigator.canShare({ files: [new File(['{}'], 'x.json', { type: 'application/json' })] }); }
+    catch (e) { return false; }
+  }
+  function backupPayload() {
+    return {
+      json: JSON.stringify({ app: 'task-notebook', version: 1, exportedAt: new Date().toISOString(), tasks: state.tasks }, null, 2),
+      filename: 'tasks-backup-' + new Date().toISOString().slice(0, 10) + '.json'
+    };
+  }
+  async function exportBackup(how) {
+    const { json, filename } = backupPayload();
+    if (how === 'share') {
+      try {
+        await navigator.share({ files: [new File([json], filename, { type: 'application/json' })], title: 'نسخة دفتر المهام' });
+        markBackup(); closeSheet(); toast('اتبعتت النسخة.');
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+        toast('المشاركة مش متاحة. استخدم «حفظ نسخة كملف».');
+      }
+      return;
+    }
+    if (!hasClaude) {
+      const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+      const a = h('a', { href: url, download: filename });
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      markBackup(); closeSheet(); toast('اتحفظت النسخة الاحتياطية.');
+      return;
+    }
+    const downloads = await Promise.race([downloadsP, new Promise((r) => setTimeout(() => r(null), 3000))]);
+    if (!downloads) { showCopySheet(json); return; }
+    try {
+      await downloads.save({ filename, data: json });
+      markBackup(); closeSheet(); toast('اتحفظت النسخة الاحتياطية.');
+    } catch (e) {
+      const code = e && e.code;
+      if (code === 'declined') toast('اتلغى الحفظ.');
+      else if (code === 'rate_limited') toast('فيه طلب حفظ مفتوح بالفعل. استنى ثواني وجرّب تاني.');
+      else showCopySheet(json);
+    }
+  }
+  async function copyText(text, ta) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    try { ta.focus(); ta.select(); return document.execCommand('copy'); } catch (e) { return false; }
+  }
+
+  function openBackupSheet(e) {
+    const opener = e && e.currentTarget;
+    openSheet((s) => {
+      const last = getLastBackup();
+      s.append(
+        h('div', { class: 'sheet-grip', 'aria-hidden': 'true' }),
+        h('h2', { id: 'sheetH', class: 'sheet-h', text: 'النسخة الاحتياطية' }),
+        h('p', { class: 'sheet-status' + (backupWarn() ? ' warn' : ''),
+          text: last ? 'آخر نسخة: ' + rel(last) + '.' : 'لسه ماعملتش أي نسخة.' }),
+        h('p', { text: 'المهام محفوظة على المتصفح ده بس. خد نسخة كل فترة، ولو الداتا اتمسحت أو فتحت من جهاز تاني رجّعها من الملف.' }),
+        h('div', { class: 'sheet-actions' },
+          h('button', { class: 'btn primary block', type: 'button', onclick: () => exportBackup('save') }, icon('backup'), 'حفظ نسخة كملف'),
+          canShareFiles() ? h('button', { class: 'btn block', type: 'button', onclick: () => exportBackup('share') }, icon('share'), 'ابعت النسخة لنفسك') : null,
+          h('button', { class: 'btn block', type: 'button', onclick: () => { closeSheet(); els.fileInput.click(); } }, icon('restore'), 'رجّع من ملف'),
+          h('button', { class: 'btn quiet block', type: 'button', text: 'قفل', onclick: closeSheet })
+        )
+      );
+    }, opener);
+  }
+  function showCopySheet(json) {
+    openSheet((s) => {
+      const ta = h('textarea', { class: 'textarea', readonly: true, value: json, 'aria-label': 'بيانات النسخة الاحتياطية' });
+      s.append(
+        h('div', { class: 'sheet-grip', 'aria-hidden': 'true' }),
+        h('h2', { id: 'sheetH', class: 'sheet-h', text: 'انسخ النسخة الاحتياطية' }),
+        h('p', { text: 'الحفظ كملف مش متاح هنا. انسخ البيانات دي والصقها في ملف جديد باسم tasks-backup.json.' }),
+        ta,
+        h('div', { class: 'sheet-actions' },
+          h('button', { class: 'btn primary block', type: 'button', text: 'انسخ', onclick: async () => {
+            if (await copyText(json, ta)) { markBackup(); closeSheet(); toast('اتنسخت. الصقها في ملف واحفظه.'); }
+            else { ta.focus(); ta.select(); toast('النسخ التلقائي مش متاح. حدد النص وانسخه بإيدك.'); }
+          } }),
+          h('button', { class: 'btn quiet block', type: 'button', text: 'قفل', onclick: closeSheet })
+        )
+      );
+    }, null);
+  }
+
+  async function onImportFile(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    let data;
+    try { data = JSON.parse(await file.text()); }
+    catch (err) { toast('الملف ده مش نسخة سليمة.'); return; }
+    const list = Array.isArray(data) ? data : (data && Array.isArray(data.tasks) ? data.tasks : null);
+    if (!list) { toast('الملف ده مش نسخة من دفتر المهام.'); return; }
+    const tasks = list.map(normalizeTask).filter(Boolean);
+    if (!tasks.length) { toast('الملف ده مفيهوش مهام.'); return; }
+    if (!state.tasks.length) {
+      state.tasks = tasks;
+      commit();
+      toast('اتسترجعت ' + tasksLabel(tasks.length) + '.');
+      return;
+    }
+    openSheet((s) => {
+      s.append(
+        h('div', { class: 'sheet-grip', 'aria-hidden': 'true' }),
+        h('h2', { id: 'sheetH', class: 'sheet-h', text: 'استرجاع نسخة' }),
+        h('p', { class: 'sheet-status', text: 'الملف فيه ' + tasksLabel(tasks.length) + '، وعندك دلوقتي ' + tasksLabel(state.tasks.length) + '.' }),
+        h('p', { text: 'الدمج بيضيف المهام الجديدة ويحدّث اللي اتغيرت، من غير ما يمسح حاجة.' }),
+        h('div', { class: 'sheet-actions' },
+          h('button', { class: 'btn primary block', type: 'button', text: 'ادمج الاتنين', onclick: () => { closeSheet(); applyImport(tasks, 'merge'); } }),
+          h('button', { class: 'btn block', type: 'button', text: 'استبدل باللي في الملف', onclick: () => { closeSheet(); applyImport(tasks, 'replace'); } }),
+          h('button', { class: 'btn quiet block', type: 'button', text: 'إلغاء', onclick: closeSheet })
+        )
+      );
+    }, null);
+  }
+  function applyImport(incoming, mode) {
+    if (mode === 'replace') {
+      state.tasks = incoming;
+      persist();
+      if (currentRoute()) replaceRoute(''); else renderAll();
+      toast('اتسترجعت ' + tasksLabel(incoming.length) + '.');
+      return;
+    }
+    let added = 0, updated = 0;
+    const byId = new Map(state.tasks.map((t) => [t.id, t]));
+    for (const t of incoming) {
+      const ex = byId.get(t.id);
+      if (!ex) { state.tasks.push(t); added++; }
+      else if (t.updatedAt > ex.updatedAt) { Object.assign(ex, t); updated++; }
+    }
+    commit();
+    toast('خلص الدمج: ' + nf.format(added) + ' جديدة و' + nf.format(updated) + ' اتحدّثت.');
+  }
+
+  /* ---------- bottom sheet ---------- */
+  function openSheet(build, opener) {
+    closeSheet(true);
+    const sheet = h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'sheetH' });
+    build(sheet);
+    const layer = h('div', { class: 'sheet-layer' }, h('div', { class: 'scrim', onclick: () => closeSheet() }), sheet);
+    document.body.append(layer);
+    sheetState = { layer, sheet, opener };
+    document.addEventListener('keydown', sheetKey);
+    requestAnimationFrame(() => requestAnimationFrame(() => layer.classList.add('open')));
+    later(() => { const f = sheet.querySelector('button, textarea'); if (f) f.focus({ preventScroll: true }); });
+  }
+  function closeSheet(silent) {
+    if (!sheetState) return;
+    const { layer, opener } = sheetState;
+    sheetState = null;
+    document.removeEventListener('keydown', sheetKey);
+    layer.remove();
+    if (!silent && opener && opener.isConnected) opener.focus({ preventScroll: true });
+  }
+  function sheetKey(e) {
+    if (!sheetState) return;
+    if (e.key === 'Escape') { e.preventDefault(); closeSheet(); return; }
+    if (e.key !== 'Tab') return;
+    const items = [...sheetState.sheet.querySelectorAll('button, textarea, input')].filter((x) => !x.disabled);
+    if (!items.length) return;
+    const first = items[0], last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+
+  /* ---------- toast ---------- */
+  let toastTimer = 0;
+  function hideToast() { els.toast.hidden = true; els.toast.replaceChildren(); }
+  function toast(msg, actionLabel, action) {
+    els.toast.replaceChildren(h('span', { text: msg }));
+    if (actionLabel) els.toast.append(h('button', { type: 'button', text: actionLabel, onclick: () => { hideToast(); action(); } }));
+    els.toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, actionLabel ? 7000 : 3000);
+  }
+
+  /* ---------- render ---------- */
+  function renderHeader() {
+    const bar = els.appbar;
+    bar.replaceChildren();
+    const narrow = isNarrow();
+    headerWarn = backupWarn();
+
+    if (narrow && (ui.mode === 'new' || ui.mode === 'edit')) {
+      bar.append(
+        h('button', { class: 'bar-btn', type: 'button', text: 'إلغاء', onclick: cancelForm }),
+        h('span', { class: 'bar-title', text: ui.mode === 'new' ? 'مهمة جديدة' : 'تعديل المهمة' }),
+        h('button', { class: 'bar-btn primary', type: 'button', text: 'حفظ', onclick: saveForm })
+      );
+      return;
+    }
+    const t = ui.mode === 'view' ? getTask(ui.selectedId) : null;
+    if (narrow && ui.view === 'detail' && t) {
+      bar.append(
+        h('button', { class: 'bar-btn', type: 'button', onclick: goBack }, icon('back'), 'رجوع'),
+        h('span', { class: 'spacer' }),
+        h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'تعديل المهمة', title: 'تعديل', onclick: () => startEdit(t.id) }, icon('edit')),
+        h('button', { class: 'icon-btn danger', type: 'button', 'aria-label': 'حذف المهمة', title: 'حذف', onclick: () => deleteTask(t.id) }, icon('trash'))
+      );
+      return;
+    }
+    bar.append(
+      h('h1', { class: 'brand', text: 'دفتر المهام' }),
+      h('span', { class: 'spacer' }),
+      h('button', { class: 'bar-btn', type: 'button', onclick: openBackupSheet,
+        'aria-label': headerWarn ? 'نسخة احتياطية، محتاج تاخد نسخة جديدة' : null },
+        icon('backup'), h('span', { text: 'نسخة احتياطية' }),
+        headerWarn ? h('span', { class: 'dot', 'aria-hidden': 'true' }) : null)
+    );
+  }
+
+  function renderNav() {
+    const all = state.tasks.length;
+    const open = state.tasks.filter((t) => !t.done).length;
+    const late = state.tasks.filter(isLate).length;
+    const counts = { all, open, late, done: all - open };
+    for (const b of els.nav.querySelectorAll('button[data-filter]')) {
+      const f = b.dataset.filter;
+      b.setAttribute('aria-pressed', String(f === ui.filter));
+      const c = b.querySelector('.count');
+      c.textContent = nf.format(counts[f]);
+      c.hidden = counts[f] === 0;
+      b.classList.toggle('has-late', f === 'late' && late > 0);
+    }
+  }
+
+  function filteredTasks() {
+    const q = ui.query.trim().toLowerCase();
+    const byDue = ui.filter === 'open' || ui.filter === 'late';
+    return state.tasks
+      .filter((t) => ui.filter === 'all' || (ui.filter === 'open' ? !t.done : ui.filter === 'late' ? isLate(t) : t.done))
+      .filter((t) => !q || [t.title, t.description, t.assignee, ...t.comments.map((c) => c.author + ' ' + c.text)]
+        .join(' ').toLowerCase().includes(q))
+      .sort((a, b) => {
+        if (byDue) {
+          if (a.dueDate && b.dueDate && a.dueDate !== b.dueDate) return a.dueDate < b.dueDate ? -1 : 1;
+          if (!!a.dueDate !== !!b.dueDate) return a.dueDate ? -1 : 1;
+        }
+        return b.createdAt - a.createdAt;
+      });
+  }
+  const lastActivity = (t) => Math.max(t.updatedAt, ...t.comments.map((c) => c.createdAt));
+
+  function renderList() {
+    const tasks = filteredTasks();
+    els.list.replaceChildren(...tasks.map((t) => {
+      const meta = [];
+      if (t.assignee) meta.push(h('span', { text: t.assignee }));
+      const due = t.done ? null : dueInfo(t);
+      if (due) meta.push(h('span', { class: 'due ' + due.cls, text: due.text }));
+      meta.push(h('span', { text: commentsLabel(t.comments.length) }));
+      meta.push(h('span', { text: rel(lastActivity(t)) }));
+      const selected = ui.mode !== 'new' && ui.mode !== 'none' && ui.selectedId === t.id;
+      return h('li', { class: 'task-row' + (t.done ? ' done' : '') + (selected ? ' selected' : '') },
+        h('label', { class: 'check-hit' },
+          h('input', { type: 'checkbox', class: 'check', 'data-id': t.id, checked: t.done,
+            'aria-label': 'خلصت: ' + t.title, onchange: () => toggleDone(t.id, 'list') })
+        ),
+        h('button', { type: 'button', class: 'row-main', 'data-id': t.id,
+          'aria-current': selected ? 'true' : null, onclick: () => selectTask(t.id) },
+          h('span', { class: 'row-title', text: t.title }),
+          h('span', { class: 'row-meta' }, meta)
+        )
+      );
+    }));
+
+    const e = els.listEmpty;
+    e.replaceChildren();
+    if (tasks.length) { e.hidden = true; return; }
+    e.hidden = false;
+    if (!state.tasks.length) {
+      e.append(h('strong', { text: 'مفيش مهام لسه' }),
+        h('span', { text: 'دوس «مهمة جديدة» وابدأ سجّل اللي بيخلص فيها أول بأول.' }));
+    } else if (ui.query.trim()) {
+      e.append(h('strong', { text: 'مفيش نتايج' }), h('span', { text: 'جرّب كلمة تانية، أو امسح البحث.' }));
+    } else if (ui.filter === 'late') {
+      e.append(h('strong', { text: 'مفيش حاجة متأخرة' }), h('span', { text: 'كل المهام اللي ليها ميعاد ماشية في وقتها.' }));
+    } else if (ui.filter === 'done') {
+      e.append(h('strong', { text: 'مفيش مهام خلصت لسه' }), h('span', { text: 'علّم على المربع جنب المهمة لما تخلص.' }));
+    } else {
+      e.append(h('strong', { text: 'كل المهام خلصت' }), h('span', { text: 'مفيش حاجة مفتوحة دلوقتي.' }));
+    }
+  }
+
+  function renderDetail() {
+    els.app.dataset.view = ui.view;
+    document.body.dataset.view = ui.view;
+    if (composerObserver) { composerObserver.disconnect(); composerObserver = null; }
+    const d = els.detail;
+    d.replaceChildren();
+    if (ui.mode === 'new' || ui.mode === 'edit') { d.append(taskForm()); return; }
+    const t = getTask(ui.selectedId);
+    if (ui.mode !== 'view' || !t) {
+      d.append(h('div', { class: 'placeholder' }, h('p', {
+        text: state.tasks.length ? 'اختار مهمة من القائمة عشان تشوف اللي اتعمل فيها.'
+          : 'المهام اللي هتكتبها هتظهر هنا بتفاصيلها وتعليقاتها.'
+      })));
+      return;
+    }
+    d.append(taskView(t));
+    const cta = $('detailCta'), comp = $('composer');
+    if (isNarrow() && cta && comp && 'IntersectionObserver' in window) {
+      composerObserver = new IntersectionObserver((ents) => {
+        const seen = ents[0].isIntersecting;
+        cta.classList.toggle('away', seen);
+        cta.inert = seen;
+      }, { threshold: 0.2 });
+      composerObserver.observe(comp);
+    }
+  }
+
+  function taskView(t) {
+    const events = [{ type: 'created', at: t.createdAt }]
+      .concat(t.comments.map((c) => ({ type: 'comment', at: c.createdAt, c })))
+      .concat(t.done && t.doneAt ? [{ type: 'done', at: t.doneAt }] : [])
+      .sort((a, b) => a.at - b.at);
+
+    const timeline = h('ol', { class: 'timeline' }, events.map((ev) => {
+      const time = h('time', { class: 'ev-time', datetime: new Date(ev.at).toISOString(), title: dtFull.format(ev.at), text: dtShort.format(ev.at) });
+      if (ev.type === 'created') {
+        return h('li', { class: 'ev system' }, h('div', { class: 'ev-head' }, h('p', { class: 'ev-text', text: 'اتسجلت المهمة' }), time));
+      }
+      if (ev.type === 'done') {
+        return h('li', { class: 'ev system done-ev' }, h('div', { class: 'ev-head' }, h('p', { class: 'ev-text', text: 'اتعلّمت إنها خلصت' }), time));
+      }
+      const c = ev.c;
+      return h('li', { class: 'ev comment' },
+        h('div', { class: 'ev-head' },
+          h('span', { class: 'ev-author', text: c.author || 'بدون اسم' }),
+          time,
+          h('button', { class: 'btn quiet small danger ev-del', type: 'button', text: 'حذف',
+            'aria-label': 'حذف التعليق', onclick: () => deleteComment(t, c.id) })
+        ),
+        h('p', { class: 'ev-text', text: c.text })
+      );
+    }));
+
+    if (!ui.draft || ui.draft.taskId !== t.id) {
+      ui.draft = { taskId: t.id, author: t.assignee || ui.lastAuthor || '', text: '' };
+    }
+    const draft = ui.draft;
+    const onKey = (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); addComment(t); } };
+
+    const composer = h('div', { id: 'composer', class: 'composer', role: 'group', 'aria-label': 'تحديث جديد' },
+      h('div', { class: 'field' },
+        h('label', { for: 'c-author', text: 'مين' }),
+        h('input', { id: 'c-author', class: 'input', list: 'people', autocomplete: 'off', value: draft.author,
+          enterkeyhint: 'next', placeholder: 'اسم اللي عمل الجزء ده',
+          oninput: (e) => { draft.author = e.target.value; }, onkeydown: onKey })
+      ),
+      h('div', { class: 'field' },
+        h('label', { for: 'c-text', text: 'إيه اللي اتعمل؟' }),
+        h('textarea', { id: 'c-text', class: 'textarea', rows: '3', value: draft.text,
+          placeholder: 'مثلاً: خلص تصميم الفورم', oninput: (e) => { draft.text = e.target.value; }, onkeydown: onKey })
+      ),
+      h('div', { class: 'composer-foot' },
+        h('button', { class: 'btn primary', type: 'button', text: 'أضف التحديث', onclick: () => addComment(t) }),
+        h('span', { class: 'hint', text: 'Ctrl + Enter للإضافة بسرعة' })
+      )
+    );
+
+    return h('div', { class: 'detail-inner' },
+      h('div', { class: 'detail-head' },
+        h('button', { class: 'btn quiet', type: 'button', onclick: () => startEdit(t.id) }, icon('edit'), 'تعديل'),
+        h('button', { class: 'btn quiet danger', type: 'button', onclick: () => deleteTask(t.id) }, icon('trash'), 'حذف')
+      ),
+      h('h2', { id: 'taskTitle', class: 'task-title', tabindex: '-1', text: t.title }),
+      h('label', { class: 'done-toggle' + (t.done ? ' is-done' : '') },
+        h('input', { type: 'checkbox', class: 'check', 'data-id': t.id, checked: t.done, onchange: () => toggleDone(t.id, 'detail') }),
+        h('span', { text: 'خلصت' })
+      ),
+      h('div', { class: 'facts' },
+        h('span', null, 'المسئول: ', h('strong', { text: t.assignee || 'مش محدد' })),
+        (() => { const due = dueInfo(t); return due ? h('span', { class: 'due ' + due.cls, text: due.text }) : null; })(),
+        h('span', null, 'اتسجلت ' + dtShort.format(t.createdAt))
+      ),
+      t.description.trim() ? h('p', { class: 'desc', text: t.description }) : null,
+      h('h3', { class: 'section-h' }, 'اللي اتعمل', h('span', { text: commentsLabel(t.comments.length) })),
+      timeline,
+      composer,
+      h('div', { id: 'detailCta', class: 'detail-cta' },
+        h('button', { class: 'btn primary block', type: 'button', onclick: jumpToComposer }, icon('plus'), 'أضف تحديث')
+      )
+    );
+  }
+
+  function taskForm() {
+    const f = ui.formDraft || (ui.formDraft = blankDraft());
+    const isNew = ui.mode === 'new';
+    const onKey = (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); cancelForm(); }
+      else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey || e.target.tagName === 'INPUT')) { e.preventDefault(); saveForm(); }
+    };
+    const clearBtn = h('button', { class: 'btn quiet small', type: 'button', text: 'من غير ميعاد', hidden: !f.dueDate,
+      onclick: () => { f.dueDate = ''; const i = $('f-due'); if (i) { i.value = ''; i.focus(); } clearBtn.hidden = true; } });
+    const setDue = (e) => { f.dueDate = e.target.value; clearBtn.hidden = !e.target.value; };
+
+    return h('div', { class: 'detail-inner' },
+      h('div', { class: 'task-form', role: 'group', 'aria-labelledby': 'formH' },
+        h('h2', { id: 'formH', class: 'form-h', text: isNew ? 'مهمة جديدة' : 'تعديل المهمة' }),
+        h('div', { class: 'field' },
+          h('label', { for: 'f-title', text: 'العنوان' }),
+          h('input', { id: 'f-title', class: 'input', autocomplete: 'off', value: f.title, placeholder: 'مثلاً: صفحة تسجيل الدخول',
+            enterkeyhint: 'done', 'aria-invalid': ui.formError ? 'true' : null, 'aria-describedby': ui.formError ? 'f-error' : null,
+            oninput: (e) => { f.title = e.target.value; }, onkeydown: onKey }),
+          ui.formError ? h('p', { id: 'f-error', class: 'error', text: ui.formError }) : null
+        ),
+        h('div', { class: 'field' },
+          h('label', { for: 'f-desc', text: 'الوصف' }),
+          h('textarea', { id: 'f-desc', class: 'textarea', rows: '3', value: f.description, placeholder: 'تفاصيل صغيرة عن المطلوب',
+            oninput: (e) => { f.description = e.target.value; }, onkeydown: onKey })
+        ),
+        h('div', { class: 'field' },
+          h('label', { for: 'f-assignee', text: 'المسئول' }),
+          h('input', { id: 'f-assignee', class: 'input', list: 'people', autocomplete: 'off', value: f.assignee, placeholder: 'اسم الشخص',
+            enterkeyhint: 'done', oninput: (e) => { f.assignee = e.target.value; }, onkeydown: onKey })
+        ),
+        h('div', { class: 'field' },
+          h('label', { for: 'f-due', text: 'المفروض تخلص إمتى؟ (اختياري)' }),
+          h('div', { class: 'date-row' },
+            h('input', { id: 'f-due', class: 'input date', type: 'date', value: f.dueDate || '',
+              oninput: setDue, onchange: setDue, onkeydown: onKey }),
+            clearBtn
+          )
+        ),
+        h('div', { class: 'form-foot' },
+          h('button', { class: 'btn primary block', type: 'button', text: isNew ? 'حفظ المهمة' : 'حفظ التعديلات', onclick: saveForm }),
+          h('button', { class: 'btn quiet block', type: 'button', text: 'إلغاء', onclick: cancelForm })
+        )
+      )
+    );
+  }
+
+  function renderBanner() {
+    const b = els.banner;
+    if (storageOk) { b.hidden = true; b.textContent = ''; return; }
+    b.textContent = 'المتصفح مش سامح بالحفظ هنا، فأي تعديل هيضيع لما تقفل الصفحة. خد نسخة احتياطية قبل ما تقفل.';
+    b.hidden = false;
+  }
+
+  function renderPeople() {
+    const names = new Set();
+    for (const t of state.tasks) {
+      if (t.assignee) names.add(t.assignee);
+      for (const c of t.comments) if (c.author) names.add(c.author);
+    }
+    els.people.replaceChildren(...[...names].sort((a, b) => a.localeCompare(b, 'ar')).map((n) => h('option', { value: n })));
+  }
+
+  function renderAll() {
+    renderHeader(); renderNav(); renderList(); renderDetail(); renderBanner(); renderPeople();
+  }
+
+  /* ---------- wire up ---------- */
+  document.querySelectorAll('[data-icon]').forEach((el) => el.append(icon(el.dataset.icon)));
+  els.fab.addEventListener('click', openNew);
+  els.search.addEventListener('input', (e) => { ui.query = e.target.value; renderList(); });
+  els.nav.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-filter]');
+    if (!b) return;
+    ui.filter = b.dataset.filter;
+    renderNav(); renderList();
+    if (isNarrow()) window.scrollTo(0, 0); else els.list.scrollTop = 0;
+  });
+  els.fileInput.addEventListener('change', onImportFile);
+  window.addEventListener('storage', (e) => {
+    if (e.key === KEY) { loadState(); applyRoute(currentRoute()); }
+    else if (e.key === BACKUP_KEY) renderHeader();
+  });
+  const onMq = () => renderAll();
+  if (mq.addEventListener) mq.addEventListener('change', onMq); else if (mq.addListener) mq.addListener(onMq);
+  setInterval(() => {
+    if (backupWarn() !== headerWarn) renderHeader();
+    renderNav(); renderList();
+  }, 60000);
+
+  loadState();
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}
+  applyRoute(currentRoute());
+})();
+</script>
+</body>
+</html>
